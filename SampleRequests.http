@@ -1,0 +1,23 @@
+### Zuerst in GetBearerToken.http einen Token holen und hier eintragen
+@bearer_token=HIER_TOKEN_EINTRAGEN
+
+### Alle Einträge abrufen
+GET http://localhost:8080/hello
+Authorization: Bearer {{bearer_token}}
+
+### Einen Eintrag anlegen
+POST http://localhost:8080/hello
+Content-Type: application/json
+Authorization: Bearer {{bearer_token}}
+
+{
+  "message": "Hallo Welt!"
+}
+
+### Nach Nachricht suchen
+GET http://localhost:8080/hello/findByMessage?message=Hallo Welt!
+Authorization: Bearer {{bearer_token}}
+
+### Einen Eintrag löschen
+DELETE http://localhost:8080/hello/1
+Authorization: Bearer {{bearer_token}}

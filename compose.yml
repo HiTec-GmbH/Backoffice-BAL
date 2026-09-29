@@ -1,0 +1,123 @@
+volumes:
+  employee_postgres_data:
+    driver: local
+  pms_postgres_data:
+    driver: local
+  authentik_redis_data:
+    driver: local
+  authentik_postgres_data:
+    driver: local
+
+services:
+  # --- Employee-Service (bestehender Microservice, als fertiges Image) ---
+  postgres-employee:
+    container_name: postgres_employee
+    image: postgres:13.3
+    volumes:
+      - employee_postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: employee_db
+      POSTGRES_USER: employee
+      POSTGRES_PASSWORD: secret
+    ports:
+      - "5432:5432"
+
+  employee:
+    container_name: employee
+    image: berndheidemann/employee-management-service-authentik:1.0.1
+    environment:
+      spring.datasource.url: jdbc:postgresql://postgres-employee:5432/employee_db
+      spring.datasource.username: employee
+      spring.datasource.password: secret
+    ports:
+      - "8089:8089"
+    depends_on:
+      - postgres-employee
+
+  # --- Datenbank für den Project-Management-Service (dieses Projekt) ---
+  postgres-pms:
+    container_name: postgres_pms
+    image: postgres:17.6
+    volumes:
+      - pms_postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: pms_db
+      POSTGRES_USER: pms
+      POSTGRES_PASSWORD: secret
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pms -d pms_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # --- Authentik: zentraler Identity-Provider für alle Backoffice-Services ---
+  postgres-authentik:
+    container_name: postgres_authentik
+    image: postgres:13.3
+    volumes:
+      - authentik_postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: authentik
+      POSTGRES_USER: authentik
+      POSTGRES_PASSWORD: authentik_secret
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
+      start_period: 20s
+      interval: 30s
+      retries: 5
+      timeout: 5s
+
+  redis:
+    container_name: redis_authentik
+    image: redis:alpine
+    command: --save 60 1 --loglevel warning
+    volumes:
+      - authentik_redis_data:/data
+    healthcheck:
+      test: [ "CMD-SHELL", "redis-cli ping | grep PONG" ]
+      start_period: 20s
+      interval: 30s
+      retries: 5
+      timeout: 3s
+
+  authentik-server:
+    container_name: authentik_server
+    image: ghcr.io/goauthentik/server:2024.2.2
+    command: server
+    environment:
+      AUTHENTIK_REDIS__HOST: redis
+      AUTHENTIK_POSTGRESQL__HOST: postgres-authentik
+      AUTHENTIK_POSTGRESQL__USER: authentik
+      AUTHENTIK_POSTGRESQL__NAME: authentik
+      AUTHENTIK_POSTGRESQL__PASSWORD: authentik_secret
+      AUTHENTIK_SECRET_KEY: your-secret-key-change-this
+      AUTHENTIK_BOOTSTRAP_EMAIL: a@b.com
+      AUTHENTIK_BOOTSTRAP_PASSWORD: secret
+    ports:
+      - "9000:9000"
+      - "9443:9443"
+    depends_on:
+      postgres-authentik: { condition: service_healthy }
+      redis: { condition: service_healthy }
+
+  authentik-worker:
+    container_name: authentik_worker
+    image: ghcr.io/goauthentik/server:2024.2.2
+    command: worker
+    environment:
+      AUTHENTIK_REDIS__HOST: redis
+      AUTHENTIK_POSTGRESQL__HOST: postgres-authentik
+      AUTHENTIK_POSTGRESQL__USER: authentik
+      AUTHENTIK_POSTGRESQL__NAME: authentik
+      AUTHENTIK_POSTGRESQL__PASSWORD: authentik_secret
+      AUTHENTIK_SECRET_KEY: your-secret-key-change-this
+      AUTHENTIK_BOOTSTRAP_EMAIL: a@b.com
+      AUTHENTIK_BOOTSTRAP_PASSWORD: secret
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./authentik_blueprints/zzz_employee_setup.yaml:/blueprints/zzz_employee_setup.yaml:ro
+    depends_on:
+      postgres-authentik: { condition: service_healthy }
+      redis: { condition: service_healthy }

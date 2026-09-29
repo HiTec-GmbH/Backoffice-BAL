@@ -1,0 +1,16 @@
+# Das App-Passwort für john ist im Authentik-Blueprint fest vorgegeben
+# (authentik_blueprints/zzz_employee_setup.yaml) -- kein manueller Schritt in der
+# Authentik-Admin-Oberfläche nötig, einfach den Request unten ausführen.
+
+@app_password=teachme123
+
+###
+POST http://localhost:9000/application/o/token/
+Content-Type: application/x-www-form-urlencoded
+
+grant_type = password &
+username = john &
+password = {{app_password}} &
+client_id = employee_api_client
+
+###

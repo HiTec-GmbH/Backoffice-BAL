@@ -1,0 +1,47 @@
+<svg viewBox="0 0 860 320" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#333"/>
+    </marker>
+    <marker id="arrowDashed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#888"/>
+    </marker>
+  </defs>
+
+  <!-- Boxes -->
+  <rect x="20" y="110" width="180" height="90" rx="8" fill="#eef2ff" stroke="#4338ca" stroke-width="2"/>
+  <text x="110" y="150" text-anchor="middle" font-size="17" font-weight="600" fill="#1e1b4b">Aufrufer</text>
+  <text x="110" y="172" text-anchor="middle" font-size="13" fill="#3730a3">(Frontend / GetBearerToken.http)</text>
+
+  <rect x="340" y="100" width="200" height="110" rx="8" fill="#fef9c3" stroke="#b45309" stroke-width="2.5"/>
+  <text x="440" y="143" text-anchor="middle" font-size="17" font-weight="700" fill="#78350f">Euer Service</text>
+  <text x="440" y="164" text-anchor="middle" font-size="13" fill="#92400e">(Project-Management-</text>
+  <text x="440" y="181" text-anchor="middle" font-size="13" fill="#92400e">Service)</text>
+
+  <rect x="660" y="110" width="180" height="90" rx="8" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+  <text x="750" y="150" text-anchor="middle" font-size="17" font-weight="600" fill="#14532d">Employee-Service</text>
+  <text x="750" y="172" text-anchor="middle" font-size="13" fill="#166534">(bereits vorhanden)</text>
+
+  <!-- Arrow 1: caller -> pms -->
+  <line x1="200" y1="140" x2="336" y2="140" stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="268" y="122" text-anchor="middle" font-size="12.5" fill="#111">Authorization:</text>
+  <text x="268" y="136" text-anchor="middle" font-size="12.5" font-weight="700" fill="#111">Bearer &lt;Token&gt;</text>
+
+  <!-- Arrow 1 return (dashed) -->
+  <line x1="336" y1="178" x2="200" y2="178" stroke="#888" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#arrowDashed)"/>
+  <text x="268" y="196" text-anchor="middle" font-size="12" fill="#555">Antwort</text>
+
+  <!-- Arrow 2: pms -> employee -->
+  <line x1="540" y1="140" x2="656" y2="140" stroke="#b45309" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <text x="598" y="118" text-anchor="middle" font-size="12.5" fill="#111">Authorization:</text>
+  <text x="598" y="132" text-anchor="middle" font-size="12.5" font-weight="700" fill="#111">Bearer &lt;Token&gt;</text>
+  <text x="598" y="148" text-anchor="middle" font-size="11.5" font-style="italic" fill="#b45309">(derselbe Token!)</text>
+
+  <!-- Arrow 2 return (dashed) -->
+  <line x1="656" y1="178" x2="540" y2="178" stroke="#888" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#arrowDashed)"/>
+  <text x="598" y="196" text-anchor="middle" font-size="12" fill="#555">Antwort</text>
+
+  <!-- Footer note -->
+  <text x="430" y="260" text-anchor="middle" font-size="13.5" fill="#333">Ein Token validiert bei beiden Services (Single Sign-on) — deshalb genügt es,</text>
+  <text x="430" y="280" text-anchor="middle" font-size="13.5" fill="#333">den eingehenden Token unverändert an den Employee-Service weiterzureichen.</text>
+</svg>
