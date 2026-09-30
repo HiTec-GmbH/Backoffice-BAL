@@ -1,0 +1,17 @@
+name: Check PR Source Branch
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, reopened]
+
+jobs:
+  check-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify source branch is staging
+        if: github.head_ref != 'staging'
+        run: |
+          echo "FEHLER: Merges nach 'main' sind ausschließlich aus dem Branch 'staging' erlaubt!"
+          exit 1
