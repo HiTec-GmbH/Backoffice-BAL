@@ -14,7 +14,10 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import de.szut.pms.employee.EmployeeNotFoundException;
+import de.szut.pms.employee.QualificationMissingException;
 import de.szut.pms.hello.HelloNotFoundException;
+import de.szut.pms.projectemployee.ProjectEmployeeNotFoundException;
 
 /**
  * Zentrale Übersetzung von Ausnahmen in HTTP-Antworten nach RFC 9457
@@ -35,6 +38,31 @@ public class ApiExceptionHandler {
         problem.setTitle("Nicht gefunden");
         return problem;
     }
+
+    @ExceptionHandler(ProjectEmployeeNotFoundException.class)
+    public ProblemDetail handleNotFound(ProjectEmployeeNotFoundException ex) {
+        ProblemDetail problem =
+                ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+        problem.setTitle("Nicht gefunden");
+        return problem;
+    }
+
+    @ExceptionHandler(EmployeeNotFoundException.class)
+    public ProblemDetail handleNotFound(EmployeeNotFoundException ex) {
+        ProblemDetail problem =
+                ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+        problem.setTitle("Nicht gefunden");
+        return problem;
+    }
+
+    @ExceptionHandler(QualificationMissingException.class)
+    public ProblemDetail handleNotFound(QualificationMissingException ex) {
+        ProblemDetail problem =
+                ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
+        problem.setTitle("Qualifikation fehlt");
+        return problem;
+    }
+
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ProblemDetail handleValidation(MethodArgumentNotValidException ex) {
