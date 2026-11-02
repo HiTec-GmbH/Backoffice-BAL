@@ -3,6 +3,9 @@ package de.szut.pms.common;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import de.szut.pms.customer.CustomerNotFoundException;
+import de.szut.pms.employee.EmployeeNotFoundException;
+import de.szut.pms.project.InvalidProjectException;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
@@ -43,6 +46,59 @@ public class ApiExceptionHandler {
                 HttpStatus.BAD_REQUEST, "Die Anfrage enthält ungültige Felder.");
         problem.setTitle("Ungültige Eingabe");
         problem.setProperty("errors", errors);
+        return problem;
+    }
+
+    // Mitarbeiter nicht gefunden
+    @ExceptionHandler(EmployeeNotFoundException.class)
+    public ProblemDetail handleEmployeeNotFound(
+            EmployeeNotFoundException ex) {
+
+        ProblemDetail problem =
+                ProblemDetail.forStatusAndDetail(
+                        HttpStatus.NOT_FOUND,
+                        ex.getMessage()
+                );
+
+        problem.setTitle("Mitarbeiter nicht gefunden");
+
+        return problem;
+    }
+
+    // Kunde nicht gefunden
+    @ExceptionHandler(CustomerNotFoundException.class)
+    public ProblemDetail handleCustomerNotFound(
+            CustomerNotFoundException ex) {
+
+        ProblemDetail problem =
+                ProblemDetail.forStatusAndDetail(
+                        HttpStatus.NOT_FOUND,
+                        ex.getMessage()
+                );
+
+        problem.setTitle("Kunde nicht gefunden");
+
+        return problem;
+    }
+
+    // Ungültige Projektdaten
+    @ExceptionHandler(InvalidProjectException.class)
+    public ProblemDetail handleInvalidProject(
+            InvalidProjectException ex) {
+
+        ProblemDetail problem =
+                ProblemDetail.forStatusAndDetail(
+                        HttpStatus.BAD_REQUEST,
+                        "Das Projekt enthält ungültige Angaben."
+                );
+
+        problem.setTitle("Ungültige Projektdaten");
+
+        problem.setProperty(
+                "errors",
+                Map.of(ex.getField(), ex.getMessage())
+        );
+
         return problem;
     }
 }
