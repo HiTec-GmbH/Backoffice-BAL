@@ -3,8 +3,6 @@ package de.szut.pms.project;
 import de.szut.pms.customer.CustomerClient;
 import de.szut.pms.customer.CustomerNotFoundException;
 import de.szut.pms.employee.EmployeeClient;
-import de.szut.pms.employee.EmployeeNotFoundException;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,10 +37,7 @@ public class ProjectService {
             );
         }
 
-        // 2. Projektleiter überprüfen
-        if (!employeeClient.existsById(dto.projectLeaderId())) {
-            throw new EmployeeNotFoundException(dto.projectLeaderId());
-        }
+        employeeClient.findById(dto.projectLeaderId());
 
         // 3. Kunden überprüfen
         if (!customerClient.existsById(dto.customerId())) {

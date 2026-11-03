@@ -2,7 +2,11 @@ package de.szut.pms.project;
 
 import de.szut.pms.customer.CustomerClient;
 import de.szut.pms.employee.EmployeeClient;
+import de.szut.pms.employee.EmployeeDto;
+import de.szut.pms.employee.EmployeeNotFoundException;
 import de.szut.pms.testcontainers.AbstractIntegrationTest;
+
+import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,7 +41,7 @@ class CreateProjectIntegrationTest extends AbstractIntegrationTest {
 
         projectRepository.deleteAll();
 
-        when(employeeClient.existsById(1L)).thenReturn(true);
+        when(employeeClient.findById(1L)).thenReturn(new EmployeeDto(1L, List.of()));
         when(customerClient.existsById(100L)).thenReturn(true);
     }
 
@@ -119,7 +123,7 @@ class CreateProjectIntegrationTest extends AbstractIntegrationTest {
     @WithMockUser
     void createProjectWithUnknownEmployeeReturns404() throws Exception {
 
-        when(employeeClient.existsById(999L)).thenReturn(false);
+        when(employeeClient.findById(999L)).thenThrow(new EmployeeNotFoundException(999L));
 
         String content = projectJson(
                 100L,

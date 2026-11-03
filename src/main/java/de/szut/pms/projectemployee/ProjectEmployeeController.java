@@ -16,7 +16,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/projectemployees")
+@RequestMapping("/projects/{projectId}/employees")
 public class ProjectEmployeeController {
 
     private final ProjectEmployeeService service;
@@ -26,8 +26,9 @@ public class ProjectEmployeeController {
     }
 
     @PostMapping
-    public ResponseEntity<ProjectEmployeeDto> create(@RequestBody @Valid CreateProjectEmployeeDto dto) {
-        ProjectEmployeeDto created = service.create(dto);
+    public ResponseEntity<ProjectEmployeeDto> create(@PathVariable Long projectId,
+                                                 @RequestBody @Valid CreateProjectEmployeeDto dto) {
+        ProjectEmployeeDto created = service.create(projectId, dto);
 
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
