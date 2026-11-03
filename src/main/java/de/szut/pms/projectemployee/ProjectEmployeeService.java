@@ -91,9 +91,11 @@ public class ProjectEmployeeService {
     }
 
     @Transactional
-    public void deleteById(Long id) {
-        ProjectEmployeeEntity entity = repository.findById(id)
-                .orElseThrow(() -> new ProjectEmployeeNotFoundException(id));
-        repository.delete(entity);
+    public ProjectEmployeesDto remove(Long projectId, Long employeeId) {
+        ProjectEntity project = loadProject(projectId);
+        ProjectEmployeeEntity assignment = repository.findByProjectIdAndEmployeeId(projectId, employeeId)
+                .orElseThrow(() -> new ProjectEmployeeNotFoundException(employeeId, projectId));
+        repository.delete(assignment);
+        return toProjectEmployeesDto(project);
     }
 }

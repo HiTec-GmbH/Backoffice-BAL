@@ -4,6 +4,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -46,4 +48,6 @@ public interface ProjectEmployeeRepository extends JpaRepository<ProjectEmployee
             @Param("endDate") LocalDate endDate);
 
     List<ProjectEmployeeEntity> findAllByProjectId(Long projectId);
+
+    Optional<ProjectEmployeeEntity> findByProjectIdAndEmployeeId(Long projectId, Long employeeId);
 }

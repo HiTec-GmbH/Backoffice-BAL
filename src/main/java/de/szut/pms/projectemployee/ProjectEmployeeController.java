@@ -1,8 +1,6 @@
 package de.szut.pms.projectemployee;
 
 import java.net.URI;
-import java.util.List;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -43,9 +41,8 @@ public class ProjectEmployeeController {
         return ResponseEntity.ok(service.findByProject(projectId));
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteById(@PathVariable Long id) {
-        service.deleteById(id);
-        return ResponseEntity.noContent().build();
+    @DeleteMapping("/{employeeId}")
+    public ResponseEntity<ProjectEmployeesDto> remove(@PathVariable Long projectId, @PathVariable Long employeeId) {
+        return ResponseEntity.ok(service.remove(projectId, employeeId));
     }
 }
