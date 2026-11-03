@@ -59,7 +59,8 @@ public class ApiExceptionHandler {
         ex.getBindingResult().getFieldErrors().forEach(
                 error -> errors.put(error.getField(), error.getDefaultMessage()));
 
-        ProblemDetail problem = problem(HttpStatus.BAD_REQUEST, "Ungültige Eingabe", "Die Anfrage enthält ungültige Felder.");
+        ProblemDetail problem = problem(HttpStatus.BAD_REQUEST, "Ungültige Eingabe",
+                "Die Anfrage enthält ungültige Felder.");
         problem.setProperty("errors", errors);
         return problem;
     }
@@ -71,7 +72,8 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(InvalidProjectException.class)
     public ProblemDetail handleInvalidProject(InvalidProjectException ex) {
-        ProblemDetail problem = problem(HttpStatus.BAD_REQUEST, "Ungültige Projektdaten", "Das Projekt enthält ungültige Angaben.");
+        ProblemDetail problem = problem(HttpStatus.BAD_REQUEST, "Ungültige Projektdaten",
+                "Das Projekt enthält ungültige Angaben.");
         problem.setProperty("errors", Map.of(ex.getField(), ex.getMessage()));
         return problem;
     }

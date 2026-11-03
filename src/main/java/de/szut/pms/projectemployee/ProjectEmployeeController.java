@@ -26,16 +26,16 @@ public class ProjectEmployeeController {
     }
 
     @PostMapping
-    public ResponseEntity<ProjectEmployeeDto> create(@PathVariable Long projectId,
-                                                 @RequestBody @Valid CreateProjectEmployeeDto dto) {
-        ProjectEmployeeDto created = service.create(projectId, dto);
+    public ResponseEntity<ProjectEmployeesDto> create(@PathVariable Long projectId,
+            @RequestBody @Valid CreateProjectEmployeeDto dto) {
+        ProjectEmployeesDto result = service.create(projectId, dto);
 
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(created.id())
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .build()
                 .toUri();
 
-        return ResponseEntity.created(location).body(created);
+        return ResponseEntity.created(location).body(result);
     }
 
     @GetMapping

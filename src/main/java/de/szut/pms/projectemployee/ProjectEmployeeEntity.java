@@ -14,7 +14,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "project_employee", uniqueConstraints = @UniqueConstraint(columnNames = {"project_id", "employee_id"})) // Die Combination aus project_id und employee_id darf es in einem Projekt nur einmal geben
+// Sicherheitsnetz zu ensureNotAssigned (BAL-008 A_7), greift auch bei gleichzeitigen Anfragen
+@Table(name = "project_employee", uniqueConstraints = @UniqueConstraint(columnNames = { "project_id", "employee_id" }))
 @Getter
 @Setter
 @NoArgsConstructor
@@ -23,9 +24,8 @@ public class ProjectEmployeeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
+
     private String qualification;
-    
 
     private Long employeeId;
 

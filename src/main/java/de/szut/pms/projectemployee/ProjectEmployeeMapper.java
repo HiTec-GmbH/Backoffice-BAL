@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 public class ProjectEmployeeMapper {
 
     public ProjectEmployeeDto toDto(ProjectEmployeeEntity entity) {
-        return new ProjectEmployeeDto(entity.getId(), entity.getQualification(), entity.getEmployeeId());
+        return new ProjectEmployeeDto(entity.getEmployeeId(), entity.getQualification());
     }
 
     public ProjectEmployeeEntity toEntity(CreateProjectEmployeeDto dto) {

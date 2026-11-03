@@ -42,6 +42,6 @@ public class ProjectEntity {
     @Column(nullable = false)
     private LocalDate startDate;
 
-    @Column(nullable = false) //TODO: geplantes Endate und tatsächliches?
+    @Column(nullable = false)
     private LocalDate endDate;
 }

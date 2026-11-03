@@ -37,6 +37,7 @@ public class ProjectService {
             );
         }
 
+        // 2. Überprüfen ob es den Projektleiter gibt
         employeeClient.findById(dto.projectLeaderId());
 
         // 3. Kunden überprüfen

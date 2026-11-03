@@ -30,6 +30,8 @@ public class RestEmployeeClient implements EmployeeClient{
         return employee;
     }
     
+    // Token Relay: Der Employee-Service ist ebenfalls abgesichert und akzeptiert dank
+    // Single Sign-on denselben Token, deshalb wird kein neuer angefordert.
     private String currentToken() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth instanceof JwtAuthenticationToken jwtAuth) {
