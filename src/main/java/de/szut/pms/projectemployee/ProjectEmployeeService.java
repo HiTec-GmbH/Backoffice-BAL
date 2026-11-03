@@ -44,7 +44,11 @@ public class ProjectEmployeeService {
         entity.setQualification(qualification);
         repository.save(entity);
 
-        List<ProjectEmployeeDto> employees = repository.findAllByProjectId(projectId).stream()
+        return toProjectEmployeesDto(project);
+    }
+
+    private ProjectEmployeesDto toProjectEmployeesDto(ProjectEntity project) {
+        List<ProjectEmployeeDto> employees = repository.findAllByProjectId(project.getId()).stream()
                 .map(mapper::toDto)
                 .toList();
         return new ProjectEmployeesDto(project.getId(), project.getName(), employees);
@@ -70,7 +74,8 @@ public class ProjectEmployeeService {
         }
     }
 
-    // Gespeichert wird die Schreibweise aus dem Employee-Service, damit „java“ und „Java“ einheitlich erscheinen.
+    // Gespeichert wird die Schreibweise aus dem Employee-Service, damit „java“ und
+    // „Java“ einheitlich erscheinen.
     private String ensureHasQualification(Long employeeId, String qualification) {
         EmployeeDto employee = employeeClient.findById(employeeId);
         return employee.skillSet().stream()
@@ -81,10 +86,8 @@ public class ProjectEmployeeService {
     }
 
     @Transactional(readOnly = true)
-    public List<ProjectEmployeeDto> findAll() {
-        return repository.findAll().stream()
-                .map(mapper::toDto)
-                .toList();
+    public ProjectEmployeesDto findByProject(Long projectId) {
+        return toProjectEmployeesDto(loadProject(projectId));
     }
 
     @Transactional

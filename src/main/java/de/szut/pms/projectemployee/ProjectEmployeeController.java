@@ -39,8 +39,8 @@ public class ProjectEmployeeController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ProjectEmployeeDto>> findAll() {
-        return ResponseEntity.ok(service.findAll());
+    public ResponseEntity<ProjectEmployeesDto> findByProject(@PathVariable Long projectId) {
+        return ResponseEntity.ok(service.findByProject(projectId));
     }
 
     @DeleteMapping("/{id}")
