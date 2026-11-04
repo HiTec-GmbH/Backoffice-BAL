@@ -1,14 +1,16 @@
 package de.szut.pms.projectemployee;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public record CreateProjectEmployeeDto(
 
-        @NotBlank (message = "Die Qualifikation darf nicht leer sein")
+        @Schema(example = "Java")
+        @NotBlank(message = "Die Qualifikation darf nicht leer sein")
         String qualification,
 
-        @NotNull (message = "Die Mitarbeiter-Id darf nicht leer sein")
-        Long employeeId)
-        {
+        @Schema(example = "5")
+        @NotNull(message = "Die Mitarbeiter-Id darf nicht leer sein")
+        Long employeeId) {
 }
