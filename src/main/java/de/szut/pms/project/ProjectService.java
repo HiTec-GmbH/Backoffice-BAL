@@ -41,6 +41,7 @@ public class ProjectService {
         this.projectEmployeeMapper = projectEmployeeMapper;
     }
 
+    // Projekt anlegen
     @Transactional
     public ProjectDto create(CreateProjectDto dto) {
 
@@ -69,6 +70,7 @@ public class ProjectService {
         return toProjectDto(saved);
     }
 
+    // Einzelnes Projekt abrufen
     @Transactional(readOnly = true)
     public ProjectDto findById(Long projectId) {
 
@@ -81,6 +83,7 @@ public class ProjectService {
         return toProjectDto(project);
     }
 
+    // Alle Projekte
     @Transactional(readOnly = true)
     public List<ProjectDto> findAll() {
 
@@ -130,7 +133,7 @@ public class ProjectService {
         return toProjectDto(updated);
     }
 
-    // Prüft alle Mitarbeiter des Projekts auf zeitliche Überschneidungen
+    // Prüft alle Mitarbeiter auf zeitliche Überschneidungen
     private void checkEmployeeOverlaps(
             ProjectEntity project,
             UpdateProjectDto dto) {
@@ -159,6 +162,31 @@ public class ProjectService {
                 );
             }
         }
+    }
+
+    // Projekt löschen
+    @Transactional
+    public void delete(Long projectId) {
+
+        // Prüfen, ob das Projekt existiert
+        ProjectEntity project = repository.findById(projectId)
+                .orElseThrow(() -> new ProjectNotFoundException(
+                        "Es existiert kein Projekt mit der ID "
+                                + projectId + "."
+                ));
+
+        // Alle Mitarbeiterzuordnungen dieses Projekts laden
+        List<ProjectEmployeeEntity> assignments =
+                projectEmployeeRepository.findAllByProjectId(projectId);
+
+        // Alle zugehörigen Mitarbeiterzuordnungen löschen
+        projectEmployeeRepository.deleteAll(assignments);
+
+        // Löschungen zuerst an die Datenbank übertragen
+        projectEmployeeRepository.flush();
+
+        // Anschließend das Projekt selbst löschen
+        repository.delete(project);
     }
 
     // Gemeinsame Hilfsmethode für ein vollständiges ProjectDto
