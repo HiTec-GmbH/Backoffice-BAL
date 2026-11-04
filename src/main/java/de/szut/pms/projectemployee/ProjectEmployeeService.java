@@ -98,4 +98,13 @@ public class ProjectEmployeeService {
         repository.delete(assignment);
         return toProjectEmployeesDto(project);
     }
+
+    @Transactional(readOnly = true)
+    public EmployeeProjectsDto findProjectsOfEmployee(Long employeeId) {
+        employeeClient.findById(employeeId);
+        List<EmployeeProjectDto> projects = repository.findAllByEmployeeId(employeeId).stream()
+                .map(mapper::toEmployeeProjectDto)
+                .toList();
+        return new EmployeeProjectsDto(employeeId, projects);
+    }
 }
