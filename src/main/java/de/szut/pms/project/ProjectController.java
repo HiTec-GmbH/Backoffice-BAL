@@ -15,8 +15,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
+@Tag(name = "Projekte", description = "Projekte anlegen, abrufen, ändern und löschen")
 @RestController
 @RequestMapping("/projects")
 public class ProjectController {
@@ -28,6 +32,11 @@ public class ProjectController {
     }
 
     // Projekt anlegen
+    @Operation(summary = "Projekt anlegen", description = "Prüft Pflichtfelder, Zeitraum, Projektleiter und Kunde und legt das Projekt an.")
+    @ApiResponse(responseCode = "201", description = "Projekt angelegt")
+    @ApiResponse(responseCode = "400", description = "Pflichtangabe fehlt oder Enddatum liegt vor dem Startdatum")
+    @ApiResponse(responseCode = "401", description = "Kein oder ungültiger Token")
+    @ApiResponse(responseCode = "404", description = "Projektleiter oder Kunde existiert nicht")
     @PostMapping
     public ResponseEntity<ProjectDto> create(
             @RequestBody @Valid CreateProjectDto dto) {
@@ -43,6 +52,10 @@ public class ProjectController {
     }
 
     // Einzelnes Projekt abrufen
+    @Operation(summary = "Projekt mit allen Daten abrufen")
+    @ApiResponse(responseCode = "200", description = "Projekt inklusive Projektmitarbeitern")
+    @ApiResponse(responseCode = "401", description = "Kein oder ungültiger Token")
+    @ApiResponse(responseCode = "404", description = "Projekt existiert nicht")
     @GetMapping("/{id}")
     public ResponseEntity<ProjectDto> findById(
             @PathVariable Long id) {
@@ -53,6 +66,9 @@ public class ProjectController {
     }
 
     // Alle Projekte abrufen
+    @Operation(summary = "Alle Projekte abrufen")
+    @ApiResponse(responseCode = "200", description = "Alle Projekte inklusive Projektmitarbeitern, ggf. leere Liste")
+    @ApiResponse(responseCode = "401", description = "Kein oder ungültiger Token")
     @GetMapping
     public ResponseEntity<List<ProjectDto>> findAll() {
 
@@ -62,6 +78,12 @@ public class ProjectController {
     }
 
     // Projektdaten aktualisieren
+    @Operation(summary = "Projektdaten ändern", description = "Prüft dieselben Regeln wie beim Anlegen und zusätzlich, ob der neue Zeitraum Mitarbeiter doppelt verplant.")
+    @ApiResponse(responseCode = "200", description = "Projekt geändert")
+    @ApiResponse(responseCode = "400", description = "Pflichtangabe fehlt oder Enddatum liegt vor dem Startdatum")
+    @ApiResponse(responseCode = "401", description = "Kein oder ungültiger Token")
+    @ApiResponse(responseCode = "404", description = "Projekt, Projektleiter oder Kunde existiert nicht")
+    @ApiResponse(responseCode = "409", description = "Neuer Zeitraum führt zu einer Doppelbelegung eines Projektmitarbeiters")
     @PutMapping("/{id}")
     public ResponseEntity<ProjectDto> update(
             @PathVariable Long id,
@@ -73,6 +95,10 @@ public class ProjectController {
     }
 
     // Projekt löschen
+    @Operation(summary = "Projekt löschen", description = "Löscht das Projekt samt seinen Mitarbeiterzuordnungen, die Mitarbeiter sind danach wieder frei.")
+    @ApiResponse(responseCode = "204", description = "Projekt gelöscht")
+    @ApiResponse(responseCode = "401", description = "Kein oder ungültiger Token")
+    @ApiResponse(responseCode = "404", description = "Projekt existiert nicht")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
 
