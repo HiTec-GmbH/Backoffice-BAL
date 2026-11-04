@@ -7,12 +7,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 
-import de.szut.pms.hello.HelloRepository;
+import de.szut.pms.project.ProjectRepository;
+import de.szut.pms.projectemployee.ProjectEmployeeRepository;
 
 /**
  * Startet einen echten Postgres-Container über Testcontainers und die volle
  * Anwendung. Zum Authentifizieren in Tests nicht Authentik ansprechen —
- * dafür gibt es {@code @WithMockUser} (siehe Tests im Package hello).
+ * dafür gibt es {@code @WithMockUser}.
  */
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -23,10 +24,15 @@ public class AbstractIntegrationTest {
     protected MockMvc mockMvc;
 
     @Autowired
-    protected HelloRepository helloRepository;
+    protected ProjectRepository projectRepository;
 
+    @Autowired
+    protected ProjectEmployeeRepository projectEmployeeRepository;
+
+    // Projektmitarbeiter zuerst löschen, sonst verhindert der Fremdschlüssel das Löschen der Projekte
     @BeforeEach
-    void setUp() {
-        helloRepository.deleteAll();
+    void cleanDatabase() {
+        projectEmployeeRepository.deleteAll();
+        projectRepository.deleteAll();
     }
 }

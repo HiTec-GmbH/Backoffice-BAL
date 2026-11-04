@@ -9,14 +9,11 @@ import de.szut.pms.employee.EmployeeClient;
 import de.szut.pms.employee.EmployeeDto;
 import de.szut.pms.employee.EmployeeNotFoundException;
 import de.szut.pms.projectemployee.ProjectEmployeeEntity;
-import de.szut.pms.projectemployee.ProjectEmployeeRepository;
 import de.szut.pms.testcontainers.AbstractIntegrationTest;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -33,12 +30,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 class UpdateProjectIntegrationTest extends AbstractIntegrationTest {
 
-    @Autowired
-    private ProjectRepository projectRepository;
-
-    @Autowired
-    private ProjectEmployeeRepository projectEmployeeRepository;
-
     @MockitoBean
     private EmployeeClient employeeClient;
 
@@ -47,9 +38,6 @@ class UpdateProjectIntegrationTest extends AbstractIntegrationTest {
 
     @BeforeEach
     void prepare() {
-
-        cleanUp();
-
         // Existierende Projektleiter simulieren
         when(employeeClient.findById(1L))
                 .thenReturn(new EmployeeDto(1L, List.of()));
@@ -60,17 +48,6 @@ class UpdateProjectIntegrationTest extends AbstractIntegrationTest {
         // Existierende Kunden simulieren
         when(customerClient.existsById(100L)).thenReturn(true);
         when(customerClient.existsById(200L)).thenReturn(true);
-    }
-
-    @AfterEach
-    void tearDown() {
-        cleanUp();
-    }
-
-    // Erst Mitarbeiterzuordnungen, dann Projekte löschen
-    private void cleanUp() {
-        projectEmployeeRepository.deleteAll();
-        projectRepository.deleteAll();
     }
 
     // T4: Erfolgreiches Aktualisieren eines Projekts

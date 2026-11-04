@@ -3,10 +3,8 @@ package de.szut.pms.projectemployee;
 import java.time.LocalDate;
 import java.util.List;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -16,7 +14,6 @@ import de.szut.pms.employee.EmployeeDto;
 import de.szut.pms.employee.EmployeeNotFoundException;
 import de.szut.pms.employee.SkillDto;
 import de.szut.pms.project.ProjectEntity;
-import de.szut.pms.project.ProjectRepository;
 import de.szut.pms.testcontainers.AbstractIntegrationTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -29,12 +26,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 class AssignProjectEmployeeIntegrationTest extends AbstractIntegrationTest {
 
-    @Autowired
-    private ProjectRepository projectRepository;
-
-    @Autowired
-    private ProjectEmployeeRepository projectEmployeeRepository;
-
     @MockitoBean
     private EmployeeClient employeeClient;
 
@@ -42,17 +33,9 @@ class AssignProjectEmployeeIntegrationTest extends AbstractIntegrationTest {
 
     @BeforeEach
     void prepare() {
-        cleanUp();
         projectA = saveProject("A", "2027-01-01", "2027-03-31");
         when(employeeClient.findById(5L))
                 .thenReturn(new EmployeeDto(5L, List.of(new SkillDto(1L, "Java"))));
-    }
-
-    // Projektmitarbeiter zuerst löschen, sonst verhindert der Fremdschlüssel das Löschen der Projekte
-    @AfterEach
-    void cleanUp() {
-        projectEmployeeRepository.deleteAll();
-        projectRepository.deleteAll();
     }
 
     @Test

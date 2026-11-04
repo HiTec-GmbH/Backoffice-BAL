@@ -2,15 +2,11 @@ package de.szut.pms.project;
 
 import java.time.LocalDate;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.test.context.support.WithMockUser;
 
 import de.szut.pms.projectemployee.ProjectEmployeeEntity;
-import de.szut.pms.projectemployee.ProjectEmployeeRepository;
 import de.szut.pms.testcontainers.AbstractIntegrationTest;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -19,24 +15,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class GetProjectByIdIntegrationTest extends AbstractIntegrationTest {
-
-    @Autowired
-    private ProjectRepository projectRepository;
-
-    @Autowired
-    private ProjectEmployeeRepository projectEmployeeRepository;
-
-    @BeforeEach
-    void prepare() {
-        cleanUp();
-    }
-
-    // Erst Mitarbeiterzuordnungen, dann Projekte löschen (Fremdschlüssel)
-    @AfterEach
-    void cleanUp() {
-        projectEmployeeRepository.deleteAll();
-        projectRepository.deleteAll();
-    }
 
     @Test
     @WithMockUser

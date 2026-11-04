@@ -10,7 +10,6 @@ import de.szut.pms.employee.EmployeeOverlapException;
 import de.szut.pms.project.InvalidProjectException;
 import de.szut.pms.project.ProjectNotFoundException;
 import de.szut.pms.employee.QualificationMissingException;
-import de.szut.pms.hello.HelloNotFoundException;
 import de.szut.pms.projectemployee.ProjectEmployeeNotFoundException;
 
 import org.springframework.core.Ordered;
@@ -32,11 +31,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class ApiExceptionHandler {
-
-    @ExceptionHandler(HelloNotFoundException.class)
-    public ProblemDetail handleNotFound(HelloNotFoundException ex) {
-        return problem(HttpStatus.NOT_FOUND, "Nicht gefunden", ex.getMessage());
-    }
 
     @ExceptionHandler(ProjectEmployeeNotFoundException.class)
     public ProblemDetail handleNotFound(ProjectEmployeeNotFoundException ex) {

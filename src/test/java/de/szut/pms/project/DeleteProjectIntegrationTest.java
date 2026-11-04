@@ -8,14 +8,11 @@ import de.szut.pms.employee.EmployeeClient;
 import de.szut.pms.employee.EmployeeDto;
 import de.szut.pms.employee.SkillDto;
 import de.szut.pms.projectemployee.ProjectEmployeeEntity;
-import de.szut.pms.projectemployee.ProjectEmployeeRepository;
 import de.szut.pms.testcontainers.AbstractIntegrationTest;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -33,20 +30,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 class DeleteProjectIntegrationTest extends AbstractIntegrationTest {
 
-    @Autowired
-    private ProjectRepository projectRepository;
-
-    @Autowired
-    private ProjectEmployeeRepository projectEmployeeRepository;
-
     @MockitoBean
     private EmployeeClient employeeClient;
 
     @BeforeEach
     void prepare() {
-
-        cleanUp();
-
         // Mitarbeiter 5 existiert und besitzt die Qualifikation Java
         when(employeeClient.findById(5L))
                 .thenReturn(new EmployeeDto(
@@ -60,18 +48,6 @@ class DeleteProjectIntegrationTest extends AbstractIntegrationTest {
                         8L,
                         List.of(new SkillDto(2L, "Testing"))
                 ));
-    }
-
-    @AfterEach
-    void tearDown() {
-        cleanUp();
-    }
-
-    // Erst Mitarbeiterzuordnungen, dann Projekte löschen
-    private void cleanUp() {
-        projectEmployeeRepository.deleteAll();
-        projectEmployeeRepository.flush();
-        projectRepository.deleteAll();
     }
 
     // T3: Projekt erfolgreich löschen
