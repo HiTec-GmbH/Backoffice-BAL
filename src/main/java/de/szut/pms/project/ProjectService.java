@@ -1,3 +1,4 @@
+
 package de.szut.pms.project;
 
 import java.util.List;
@@ -5,7 +6,9 @@ import java.util.List;
 import de.szut.pms.customer.CustomerClient;
 import de.szut.pms.customer.CustomerNotFoundException;
 import de.szut.pms.employee.EmployeeClient;
+import de.szut.pms.employee.EmployeeOverlapException;
 import de.szut.pms.projectemployee.ProjectEmployeeDto;
+import de.szut.pms.projectemployee.ProjectEmployeeEntity;
 import de.szut.pms.projectemployee.ProjectEmployeeMapper;
 import de.szut.pms.projectemployee.ProjectEmployeeRepository;
 
@@ -63,14 +66,12 @@ public class ProjectService {
         // Projekt speichern
         ProjectEntity saved = repository.save(entity);
 
-        // Projekt mit Projektmitarbeitern als DTO zurückgeben
         return toProjectDto(saved);
     }
 
     @Transactional(readOnly = true)
     public ProjectDto findById(Long projectId) {
 
-        // Projekt anhand der ID suchen
         ProjectEntity project = repository.findById(projectId)
                 .orElseThrow(() -> new ProjectNotFoundException(
                         "Es existiert kein Projekt mit der ID "
@@ -80,7 +81,6 @@ public class ProjectService {
         return toProjectDto(project);
     }
 
-    // Alle Projekte abrufen
     @Transactional(readOnly = true)
     public List<ProjectDto> findAll() {
 
@@ -90,18 +90,86 @@ public class ProjectService {
                 .toList();
     }
 
-    // Gemeinsame Hilfsmethode für die Umwandlung
-    // eines Projekts inklusive seiner Mitarbeiter
+    // Projektdaten aktualisieren
+    @Transactional
+    public ProjectDto update(Long projectId, UpdateProjectDto dto) {
+
+        // Bestehendes Projekt laden
+        ProjectEntity project = repository.findById(projectId)
+                .orElseThrow(() -> new ProjectNotFoundException(
+                        "Es existiert kein Projekt mit der ID "
+                                + projectId + "."
+                ));
+
+        // Zeitraum überprüfen
+        if (dto.endDate().isBefore(dto.startDate())) {
+            throw new InvalidProjectException(
+                    "endDate",
+                    "Das Enddatum darf nicht vor dem Startdatum liegen."
+            );
+        }
+
+        // Neue Projektleiter-ID überprüfen
+        employeeClient.findById(dto.projectLeaderId());
+
+        // Neue Kunden-ID überprüfen
+        if (!customerClient.existsById(dto.customerId())) {
+            throw new CustomerNotFoundException(dto.customerId());
+        }
+
+        // Prüfen, ob der neue Zeitraum zu Doppelbelegungen führt
+        checkEmployeeOverlaps(project, dto);
+
+        // Erst nach allen erfolgreichen Prüfungen Daten ändern
+        mapper.updateEntity(project, dto);
+
+        // Geändertes Projekt speichern
+        ProjectEntity updated = repository.save(project);
+
+        // Vollständiges Projekt inklusive Mitarbeiter zurückgeben
+        return toProjectDto(updated);
+    }
+
+    // Prüft alle Mitarbeiter des Projekts auf zeitliche Überschneidungen
+    private void checkEmployeeOverlaps(
+            ProjectEntity project,
+            UpdateProjectDto dto) {
+
+        List<ProjectEmployeeEntity> assignments =
+                projectEmployeeRepository.findAllByProjectId(project.getId());
+
+        for (ProjectEmployeeEntity assignment : assignments) {
+
+            List<ProjectEmployeeEntity> overlaps =
+                    projectEmployeeRepository.findOverlapping(
+                            assignment.getEmployeeId(),
+                            project.getId(),
+                            dto.startDate(),
+                            dto.endDate()
+                    );
+
+            if (!overlaps.isEmpty()) {
+
+                ProjectEntity conflictingProject =
+                        overlaps.get(0).getProject();
+
+                throw new EmployeeOverlapException(
+                        assignment.getEmployeeId(),
+                        conflictingProject
+                );
+            }
+        }
+    }
+
+    // Gemeinsame Hilfsmethode für ein vollständiges ProjectDto
     private ProjectDto toProjectDto(ProjectEntity project) {
 
-        // Mitarbeiterzuordnungen aus der Datenbank laden
         List<ProjectEmployeeDto> projectEmployees =
                 projectEmployeeRepository.findAllByProjectId(project.getId())
                         .stream()
                         .map(projectEmployeeMapper::toDto)
                         .toList();
 
-        // Projektdaten und Mitarbeiterliste zusammenführen
         return mapper.toDto(project, projectEmployees);
     }
 }

@@ -1,3 +1,4 @@
+
 package de.szut.pms.project;
 
 import java.util.List;
@@ -43,5 +44,19 @@ public class ProjectMapper {
         entity.setEndDate(dto.endDate());
 
         return entity;
+    }
+
+    // Eine bestehende Entity aktualisieren
+    public void updateEntity(
+            ProjectEntity entity,
+            UpdateProjectDto dto) {
+
+        entity.setName(dto.name());
+        entity.setCustomerId(dto.customerId());
+        entity.setCustomerContact(dto.customerContact());
+        entity.setProjectLeaderId(dto.projectLeaderId());
+        entity.setComment(dto.comment());
+        entity.setStartDate(dto.startDate());
+        entity.setEndDate(dto.endDate());
     }
 }
