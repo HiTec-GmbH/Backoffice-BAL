@@ -12,6 +12,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import de.szut.pms.employee.EmployeeClient;
 import de.szut.pms.employee.EmployeeDto;
 import de.szut.pms.employee.EmployeeNotFoundException;
+import de.szut.pms.employee.EmployeeServiceUnavailableException;
 import de.szut.pms.employee.SkillDto;
 import de.szut.pms.project.ProjectEntity;
 import de.szut.pms.testcontainers.AbstractIntegrationTest;
@@ -121,6 +122,18 @@ class AssignProjectEmployeeIntegrationTest extends AbstractIntegrationTest {
                 .andExpect(status().isConflict());
 
         assertThat(projectEmployeeRepository.findAll()).hasSize(1);
+    }
+
+    @Test
+    @WithMockUser
+    void assignWhenEmployeeServiceUnavailableReturns503() throws Exception {
+        when(employeeClient.findById(5L)).thenThrow(new EmployeeServiceUnavailableException(null));
+
+        mockMvc.perform(post("/projects/{id}/employees", projectA.getId())
+                        .content(body(5L, "Java")).contentType(MediaType.APPLICATION_JSON).with(csrf()))
+                .andExpect(status().isServiceUnavailable());
+
+        assertThat(projectEmployeeRepository.findAll()).isEmpty();
     }
 
     @Test

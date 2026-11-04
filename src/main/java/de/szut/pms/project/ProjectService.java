@@ -41,11 +41,9 @@ public class ProjectService {
         this.projectEmployeeMapper = projectEmployeeMapper;
     }
 
-    // Projekt anlegen
     @Transactional
     public ProjectDto create(CreateProjectDto dto) {
 
-        // Zeitraum überprüfen
         if (dto.endDate().isBefore(dto.startDate())) {
             throw new InvalidProjectException(
                     "endDate",
@@ -53,24 +51,20 @@ public class ProjectService {
             );
         }
 
-        // Projektleiter überprüfen
+        // Nur Existenzprüfung: wirft EmployeeNotFoundException (→ 404), wenn es den Projektleiter nicht gibt
         employeeClient.findById(dto.projectLeaderId());
 
-        // Kunden überprüfen
         if (!customerClient.existsById(dto.customerId())) {
             throw new CustomerNotFoundException(dto.customerId());
         }
 
-        // DTO in Entity umwandeln
         ProjectEntity entity = mapper.toEntity(dto);
 
-        // Projekt speichern
         ProjectEntity saved = repository.save(entity);
 
         return toProjectDto(saved);
     }
 
-    // Einzelnes Projekt abrufen
     @Transactional(readOnly = true)
     public ProjectDto findById(Long projectId) {
 
@@ -83,7 +77,6 @@ public class ProjectService {
         return toProjectDto(project);
     }
 
-    // Alle Projekte
     @Transactional(readOnly = true)
     public List<ProjectDto> findAll() {
 
@@ -93,18 +86,15 @@ public class ProjectService {
                 .toList();
     }
 
-    // Projektdaten aktualisieren
     @Transactional
     public ProjectDto update(Long projectId, UpdateProjectDto dto) {
 
-        // Bestehendes Projekt laden
         ProjectEntity project = repository.findById(projectId)
                 .orElseThrow(() -> new ProjectNotFoundException(
                         "Es existiert kein Projekt mit der ID "
                                 + projectId + "."
                 ));
 
-        // Zeitraum überprüfen
         if (dto.endDate().isBefore(dto.startDate())) {
             throw new InvalidProjectException(
                     "endDate",
@@ -112,28 +102,25 @@ public class ProjectService {
             );
         }
 
-        // Neue Projektleiter-ID überprüfen
+        // Nur Existenzprüfung: wirft EmployeeNotFoundException (→ 404), wenn es den Projektleiter nicht gibt
         employeeClient.findById(dto.projectLeaderId());
 
-        // Neue Kunden-ID überprüfen
         if (!customerClient.existsById(dto.customerId())) {
             throw new CustomerNotFoundException(dto.customerId());
         }
 
-        // Prüfen, ob der neue Zeitraum zu Doppelbelegungen führt
         checkEmployeeOverlaps(project, dto);
 
         // Erst nach allen erfolgreichen Prüfungen Daten ändern
         mapper.updateEntity(project, dto);
 
-        // Geändertes Projekt speichern
         ProjectEntity updated = repository.save(project);
 
-        // Vollständiges Projekt inklusive Mitarbeiter zurückgeben
         return toProjectDto(updated);
     }
 
-    // Prüft alle Mitarbeiter auf zeitliche Überschneidungen
+    // Prüft mit dem neuen Zeitraum, ob ein bereits zugeordneter Mitarbeiter dadurch mit einem
+    // anderen Projekt kollidiert (BAL-006 A_6). Das eigene Projekt wird dabei ausgeschlossen.
     private void checkEmployeeOverlaps(
             ProjectEntity project,
             UpdateProjectDto dto) {
@@ -164,32 +151,27 @@ public class ProjectService {
         }
     }
 
-    // Projekt löschen
     @Transactional
     public void delete(Long projectId) {
 
-        // Prüfen, ob das Projekt existiert
         ProjectEntity project = repository.findById(projectId)
                 .orElseThrow(() -> new ProjectNotFoundException(
                         "Es existiert kein Projekt mit der ID "
                                 + projectId + "."
                 ));
 
-        // Alle Mitarbeiterzuordnungen dieses Projekts laden
         List<ProjectEmployeeEntity> assignments =
                 projectEmployeeRepository.findAllByProjectId(projectId);
 
-        // Alle zugehörigen Mitarbeiterzuordnungen löschen
         projectEmployeeRepository.deleteAll(assignments);
 
-        // Löschungen zuerst an die Datenbank übertragen
+        // flush, damit die Zuordnungen vor dem Projekt gelöscht werden. Sonst kann Hibernate
+        // das Projekt zuerst löschen, und der Fremdschlüssel in project_employee schlägt fehl.
         projectEmployeeRepository.flush();
 
-        // Anschließend das Projekt selbst löschen
         repository.delete(project);
     }
 
-    // Gemeinsame Hilfsmethode für ein vollständiges ProjectDto
     private ProjectDto toProjectDto(ProjectEntity project) {
 
         List<ProjectEmployeeDto> projectEmployees =

@@ -31,12 +31,12 @@ public class ProjectController {
         this.service = service;
     }
 
-    // Projekt anlegen
     @Operation(summary = "Projekt anlegen", description = "Prüft Pflichtfelder, Zeitraum, Projektleiter und Kunde und legt das Projekt an.")
     @ApiResponse(responseCode = "201", description = "Projekt angelegt")
     @ApiResponse(responseCode = "400", description = "Pflichtangabe fehlt oder Enddatum liegt vor dem Startdatum")
     @ApiResponse(responseCode = "401", description = "Kein oder ungültiger Token")
     @ApiResponse(responseCode = "404", description = "Projektleiter oder Kunde existiert nicht")
+    @ApiResponse(responseCode = "503", description = "Employee-Service nicht erreichbar")
     @PostMapping
     public ResponseEntity<ProjectDto> create(
             @RequestBody @Valid CreateProjectDto dto) {
@@ -51,7 +51,6 @@ public class ProjectController {
         return ResponseEntity.created(location).body(created);
     }
 
-    // Einzelnes Projekt abrufen
     @Operation(summary = "Projekt mit allen Daten abrufen")
     @ApiResponse(responseCode = "200", description = "Projekt inklusive Projektmitarbeitern")
     @ApiResponse(responseCode = "401", description = "Kein oder ungültiger Token")
@@ -65,7 +64,6 @@ public class ProjectController {
         return ResponseEntity.ok(project);
     }
 
-    // Alle Projekte abrufen
     @Operation(summary = "Alle Projekte abrufen")
     @ApiResponse(responseCode = "200", description = "Alle Projekte inklusive Projektmitarbeitern, ggf. leere Liste")
     @ApiResponse(responseCode = "401", description = "Kein oder ungültiger Token")
@@ -77,13 +75,13 @@ public class ProjectController {
         return ResponseEntity.ok(projects);
     }
 
-    // Projektdaten aktualisieren
     @Operation(summary = "Projektdaten ändern", description = "Prüft dieselben Regeln wie beim Anlegen und zusätzlich, ob der neue Zeitraum Mitarbeiter doppelt verplant.")
     @ApiResponse(responseCode = "200", description = "Projekt geändert")
     @ApiResponse(responseCode = "400", description = "Pflichtangabe fehlt oder Enddatum liegt vor dem Startdatum")
     @ApiResponse(responseCode = "401", description = "Kein oder ungültiger Token")
     @ApiResponse(responseCode = "404", description = "Projekt, Projektleiter oder Kunde existiert nicht")
     @ApiResponse(responseCode = "409", description = "Neuer Zeitraum führt zu einer Doppelbelegung eines Projektmitarbeiters")
+    @ApiResponse(responseCode = "503", description = "Employee-Service nicht erreichbar")
     @PutMapping("/{id}")
     public ResponseEntity<ProjectDto> update(
             @PathVariable Long id,
@@ -94,7 +92,6 @@ public class ProjectController {
         return ResponseEntity.ok(updated);
     }
 
-    // Projekt löschen
     @Operation(summary = "Projekt löschen", description = "Löscht das Projekt samt seinen Mitarbeiterzuordnungen, die Mitarbeiter sind danach wieder frei.")
     @ApiResponse(responseCode = "204", description = "Projekt gelöscht")
     @ApiResponse(responseCode = "401", description = "Kein oder ungültiger Token")

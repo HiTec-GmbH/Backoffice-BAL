@@ -4,6 +4,7 @@ import java.net.URI;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,15 +20,19 @@ public class RestEmployeeClient implements EmployeeClient{
 
     @Override 
     public EmployeeDto findById(Long employeeId) {
-        EmployeeDto employee = restClient.get()
-                .uri(apiUrl + "/employees/{id}", employeeId)
-                .headers(h -> h.setBearerAuth(currentToken()))
-                .retrieve()
-                .onStatus(status -> status.value() == 404, (request, response) -> {
-                    throw new EmployeeNotFoundException(employeeId);
-                })
-                .body(EmployeeDto.class);
-        return employee;
+        try {
+            return restClient.get()
+                    .uri(apiUrl + "/employees/{id}", employeeId)
+                    .headers(h -> h.setBearerAuth(currentToken()))
+                    .retrieve()
+                    .onStatus(status -> status.value() == 404, (request, response) -> {
+                        throw new EmployeeNotFoundException(employeeId);
+                    })
+                    .body(EmployeeDto.class);
+        } catch (ResourceAccessException ex) {
+            // Keine Verbindung (Service aus, Timeout): eigene Exception, damit der Client 503 statt 500 bekommt
+            throw new EmployeeServiceUnavailableException(ex);
+        }
     }
     
     // Token Relay: Der Employee-Service ist ebenfalls abgesichert und akzeptiert dank

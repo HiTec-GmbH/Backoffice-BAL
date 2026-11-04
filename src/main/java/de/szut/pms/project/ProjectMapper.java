@@ -10,10 +10,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class ProjectMapper {
 
-    public ProjectDto toDto(ProjectEntity entity) {
-        return toDto(entity, List.of());
-    }
-
     public ProjectDto toDto(
             ProjectEntity entity,
             List<ProjectEmployeeDto> projectEmployees) {
@@ -46,7 +42,6 @@ public class ProjectMapper {
         return entity;
     }
 
-    // Eine bestehende Entity aktualisieren
     public void updateEntity(
             ProjectEntity entity,
             UpdateProjectDto dto) {

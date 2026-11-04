@@ -34,6 +34,8 @@ public class ProjectEmployeeService {
     @Transactional
     public ProjectEmployeesDto create(Long projectId, CreateProjectEmployeeDto dto) {
         ProjectEntity project = loadProject(projectId);
+        // Erst die Prüfungen in der eigenen Datenbank, dann der Aufruf beim Employee-Service,
+        // damit der fremde Service nur gefragt wird, wenn die Zuweisung sonst möglich wäre
         ensureNotAssigned(dto.employeeId(), projectId);
         ensureNoOverlap(dto.employeeId(), project);
 
@@ -96,11 +98,15 @@ public class ProjectEmployeeService {
         ProjectEmployeeEntity assignment = repository.findByProjectIdAndEmployeeId(projectId, employeeId)
                 .orElseThrow(() -> new ProjectEmployeeNotFoundException(employeeId, projectId));
         repository.delete(assignment);
+        // Hibernate schreibt das Löschen vor der nächsten Abfrage in die Datenbank,
+        // deshalb enthält die zurückgegebene Liste den Mitarbeiter nicht mehr
         return toProjectEmployeesDto(project);
     }
 
     @Transactional(readOnly = true)
     public EmployeeProjectsDto findProjectsOfEmployee(Long employeeId) {
+        // Nur Existenzprüfung (A_3): ohne sie bekäme ein unbekannter Mitarbeiter eine leere Liste,
+        // und man könnte ihn nicht von einem Mitarbeiter ohne Projekte (A_2) unterscheiden
         employeeClient.findById(employeeId);
         List<EmployeeProjectDto> projects = repository.findAllByEmployeeId(employeeId).stream()
                 .map(mapper::toEmployeeProjectDto)

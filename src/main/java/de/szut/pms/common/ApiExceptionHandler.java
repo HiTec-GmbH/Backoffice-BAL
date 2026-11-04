@@ -7,6 +7,7 @@ import de.szut.pms.customer.CustomerNotFoundException;
 import de.szut.pms.employee.EmployeeAlreadyAssignedException;
 import de.szut.pms.employee.EmployeeNotFoundException;
 import de.szut.pms.employee.EmployeeOverlapException;
+import de.szut.pms.employee.EmployeeServiceUnavailableException;
 import de.szut.pms.project.InvalidProjectException;
 import de.szut.pms.project.ProjectNotFoundException;
 import de.szut.pms.employee.QualificationMissingException;
@@ -68,6 +69,7 @@ public class ApiExceptionHandler {
     public ProblemDetail handleInvalidProject(InvalidProjectException ex) {
         ProblemDetail problem = problem(HttpStatus.BAD_REQUEST, "Ungültige Projektdaten",
                 "Das Projekt enthält ungültige Angaben.");
+        // Gleiche Struktur wie bei @Valid-Fehlern, damit ein Client alle 400-Fehler einheitlich auswerten kann
         problem.setProperty("errors", Map.of(ex.getField(), ex.getMessage()));
         return problem;
     }
@@ -85,6 +87,11 @@ public class ApiExceptionHandler {
     @ExceptionHandler(EmployeeOverlapException.class)
     public ProblemDetail handleEmployeeOverlap(EmployeeOverlapException ex) {
         return problem(HttpStatus.CONFLICT, "Zeitliche Überschneidung", ex.getMessage());
+    }
+
+    @ExceptionHandler(EmployeeServiceUnavailableException.class)
+    public ProblemDetail handleEmployeeServiceUnavailable(EmployeeServiceUnavailableException ex) {
+        return problem(HttpStatus.SERVICE_UNAVAILABLE, "Employee-Service nicht erreichbar", ex.getMessage());
     }
 
     private ProblemDetail problem(HttpStatus status, String title, String detail) {
