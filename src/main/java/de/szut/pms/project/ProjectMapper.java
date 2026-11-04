@@ -1,11 +1,21 @@
 package de.szut.pms.project;
 
+import java.util.List;
+
+import de.szut.pms.projectemployee.ProjectEmployeeDto;
+
 import org.springframework.stereotype.Component;
 
 @Component
 public class ProjectMapper {
 
     public ProjectDto toDto(ProjectEntity entity) {
+        return toDto(entity, List.of());
+    }
+
+    public ProjectDto toDto(
+            ProjectEntity entity,
+            List<ProjectEmployeeDto> projectEmployees) {
 
         return new ProjectDto(
                 entity.getId(),
@@ -15,7 +25,8 @@ public class ProjectMapper {
                 entity.getProjectLeaderId(),
                 entity.getComment(),
                 entity.getStartDate(),
-                entity.getEndDate()
+                entity.getEndDate(),
+                projectEmployees
         );
     }
 

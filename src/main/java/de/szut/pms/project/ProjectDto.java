@@ -1,6 +1,9 @@
 package de.szut.pms.project;
 
+import de.szut.pms.projectemployee.ProjectEmployeeDto;
+
 import java.time.LocalDate;
+import java.util.List;
 
 public record ProjectDto(
 
@@ -11,7 +14,8 @@ public record ProjectDto(
         Long projectLeaderId,
         String comment,
         LocalDate startDate,
-        LocalDate endDate
+        LocalDate endDate,
+        List<ProjectEmployeeDto> projectEmployees
 
 ) {
 }

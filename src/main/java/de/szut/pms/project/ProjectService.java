@@ -1,8 +1,14 @@
 package de.szut.pms.project;
 
+import java.util.List;
+
 import de.szut.pms.customer.CustomerClient;
 import de.szut.pms.customer.CustomerNotFoundException;
 import de.szut.pms.employee.EmployeeClient;
+import de.szut.pms.projectemployee.ProjectEmployeeDto;
+import de.szut.pms.projectemployee.ProjectEmployeeMapper;
+import de.szut.pms.projectemployee.ProjectEmployeeRepository;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,23 +19,29 @@ public class ProjectService {
     private final ProjectMapper mapper;
     private final EmployeeClient employeeClient;
     private final CustomerClient customerClient;
+    private final ProjectEmployeeRepository projectEmployeeRepository;
+    private final ProjectEmployeeMapper projectEmployeeMapper;
 
     public ProjectService(
             ProjectRepository repository,
             ProjectMapper mapper,
             EmployeeClient employeeClient,
-            CustomerClient customerClient) {
+            CustomerClient customerClient,
+            ProjectEmployeeRepository projectEmployeeRepository,
+            ProjectEmployeeMapper projectEmployeeMapper) {
 
         this.repository = repository;
         this.mapper = mapper;
         this.employeeClient = employeeClient;
         this.customerClient = customerClient;
+        this.projectEmployeeRepository = projectEmployeeRepository;
+        this.projectEmployeeMapper = projectEmployeeMapper;
     }
 
     @Transactional
     public ProjectDto create(CreateProjectDto dto) {
 
-        // 1. Zeitraum überprüfen
+        // Zeitraum überprüfen
         if (dto.endDate().isBefore(dto.startDate())) {
             throw new InvalidProjectException(
                     "endDate",
@@ -37,21 +49,49 @@ public class ProjectService {
             );
         }
 
-        // 2. Überprüfen ob es den Projektleiter gibt
+        // Projektleiter überprüfen
         employeeClient.findById(dto.projectLeaderId());
 
-        // 3. Kunden überprüfen
+        // Kunden überprüfen
         if (!customerClient.existsById(dto.customerId())) {
             throw new CustomerNotFoundException(dto.customerId());
         }
 
-        // 4. DTO in Entity umwandeln
+        // DTO in Entity umwandeln
         ProjectEntity entity = mapper.toEntity(dto);
 
-        // 5. Projekt speichern
+        // Projekt speichern
         ProjectEntity saved = repository.save(entity);
 
-        // 6. Gespeichertes Projekt als DTO zurückgeben
-        return mapper.toDto(saved);
+        // Projekt mit Projektmitarbeitern als DTO zurückgeben
+        return toProjectDto(saved);
+    }
+
+    @Transactional(readOnly = true)
+    public ProjectDto findById(Long projectId) {
+
+        // Projekt anhand der ID suchen
+        ProjectEntity project = repository.findById(projectId)
+                .orElseThrow(() -> new ProjectNotFoundException(
+                        "Es existiert kein Projekt mit der ID "
+                                + projectId + "."
+                ));
+
+        // Projekt inklusive Mitarbeiter zurückgeben
+        return toProjectDto(project);
+    }
+
+    // Hilfsmethode
+    private ProjectDto toProjectDto(ProjectEntity project) {
+
+        // Mitarbeiterzuordnungen aus der Datenbank laden
+        List<ProjectEmployeeDto> projectEmployees =
+                projectEmployeeRepository.findAllByProjectId(project.getId())
+                        .stream()
+                        .map(projectEmployeeMapper::toDto)
+                        .toList();
+
+        // Entity und Mitarbeiterliste in ein gemeinsames DTO umwandeln
+        return mapper.toDto(project, projectEmployees);
     }
 }
