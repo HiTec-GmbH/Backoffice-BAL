@@ -77,11 +77,21 @@ public class ProjectService {
                                 + projectId + "."
                 ));
 
-        // Projekt inklusive Mitarbeiter zurückgeben
         return toProjectDto(project);
     }
 
-    // Hilfsmethode
+    // Alle Projekte abrufen
+    @Transactional(readOnly = true)
+    public List<ProjectDto> findAll() {
+
+        return repository.findAll()
+                .stream()
+                .map(this::toProjectDto)
+                .toList();
+    }
+
+    // Gemeinsame Hilfsmethode für die Umwandlung
+    // eines Projekts inklusive seiner Mitarbeiter
     private ProjectDto toProjectDto(ProjectEntity project) {
 
         // Mitarbeiterzuordnungen aus der Datenbank laden
@@ -91,7 +101,7 @@ public class ProjectService {
                         .map(projectEmployeeMapper::toDto)
                         .toList();
 
-        // Entity und Mitarbeiterliste in ein gemeinsames DTO umwandeln
+        // Projektdaten und Mitarbeiterliste zusammenführen
         return mapper.toDto(project, projectEmployees);
     }
 }

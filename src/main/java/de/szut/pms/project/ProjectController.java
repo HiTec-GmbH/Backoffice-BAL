@@ -1,6 +1,7 @@
 package de.szut.pms.project;
 
 import java.net.URI;
+import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,6 +38,7 @@ public class ProjectController {
         return ResponseEntity.created(location).body(created);
     }
 
+    // Einzelnes Projekt abrufen (BAL-004)
     @GetMapping("/{id}")
     public ResponseEntity<ProjectDto> findById(
             @PathVariable Long id) {
@@ -44,5 +46,14 @@ public class ProjectController {
         ProjectDto project = service.findById(id);
 
         return ResponseEntity.ok(project);
+    }
+
+    // Alle Projekte abrufen (BAL-003)
+    @GetMapping
+    public ResponseEntity<List<ProjectDto>> findAll() {
+
+        List<ProjectDto> projects = service.findAll();
+
+        return ResponseEntity.ok(projects);
     }
 }
