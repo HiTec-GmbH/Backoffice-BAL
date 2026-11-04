@@ -1,11 +1,7 @@
 package de.szut.pms.security;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import de.szut.pms.project.ProjectRepository;
-import de.szut.pms.projectemployee.ProjectEmployeeRepository;
 import de.szut.pms.testcontainers.AbstractIntegrationTest;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
@@ -13,19 +9,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class AuthenticationIntegrationTest extends AbstractIntegrationTest {
-
-    @Autowired
-    private ProjectRepository projectRepository;
-
-    @Autowired
-    private ProjectEmployeeRepository projectEmployeeRepository;
-
-    // Projektmitarbeiter zuerst löschen, sonst verhindert der Fremdschlüssel das Löschen der Projekte
-    @BeforeEach
-    void cleanUp() {
-        projectEmployeeRepository.deleteAll();
-        projectRepository.deleteAll();
-    }
 
     @Test
     void requestWithValidJwtReturnsData() throws Exception { // A_1

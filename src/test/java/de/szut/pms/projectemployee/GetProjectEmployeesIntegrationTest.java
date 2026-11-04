@@ -2,14 +2,10 @@ package de.szut.pms.projectemployee;
 
 import java.time.LocalDate;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.test.context.support.WithMockUser;
 
 import de.szut.pms.project.ProjectEntity;
-import de.szut.pms.project.ProjectRepository;
 import de.szut.pms.testcontainers.AbstractIntegrationTest;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -18,24 +14,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class GetProjectEmployeesIntegrationTest extends AbstractIntegrationTest {
-
-    @Autowired
-    private ProjectRepository projectRepository;
-
-    @Autowired
-    private ProjectEmployeeRepository projectEmployeeRepository;
-
-    @BeforeEach
-    void prepare() {
-        cleanUp();
-    }
-
-    // Projektmitarbeiter zuerst löschen, sonst verhindert der Fremdschlüssel das Löschen der Projekte
-    @AfterEach
-    void cleanUp() {
-        projectEmployeeRepository.deleteAll();
-        projectRepository.deleteAll();
-    }
 
     @Test
     @WithMockUser

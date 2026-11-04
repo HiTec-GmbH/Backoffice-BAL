@@ -11,7 +11,6 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -27,9 +26,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 class CreateProjectIntegrationTest extends AbstractIntegrationTest {
 
-    @Autowired
-    private ProjectRepository projectRepository;
-
     @MockitoBean
     private EmployeeClient employeeClient;
 
@@ -38,9 +34,6 @@ class CreateProjectIntegrationTest extends AbstractIntegrationTest {
 
     @BeforeEach
     void prepareTest() {
-
-        projectRepository.deleteAll();
-
         when(employeeClient.findById(1L)).thenReturn(new EmployeeDto(1L, List.of()));
         when(customerClient.existsById(100L)).thenReturn(true);
     }

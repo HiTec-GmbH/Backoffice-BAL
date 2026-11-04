@@ -7,10 +7,10 @@ import de.szut.pms.customer.CustomerNotFoundException;
 import de.szut.pms.employee.EmployeeAlreadyAssignedException;
 import de.szut.pms.employee.EmployeeNotFoundException;
 import de.szut.pms.employee.EmployeeOverlapException;
+import de.szut.pms.employee.EmployeeServiceUnavailableException;
 import de.szut.pms.project.InvalidProjectException;
 import de.szut.pms.project.ProjectNotFoundException;
 import de.szut.pms.employee.QualificationMissingException;
-import de.szut.pms.hello.HelloNotFoundException;
 import de.szut.pms.projectemployee.ProjectEmployeeNotFoundException;
 
 import org.springframework.core.Ordered;
@@ -32,11 +32,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class ApiExceptionHandler {
-
-    @ExceptionHandler(HelloNotFoundException.class)
-    public ProblemDetail handleNotFound(HelloNotFoundException ex) {
-        return problem(HttpStatus.NOT_FOUND, "Nicht gefunden", ex.getMessage());
-    }
 
     @ExceptionHandler(ProjectEmployeeNotFoundException.class)
     public ProblemDetail handleNotFound(ProjectEmployeeNotFoundException ex) {
@@ -74,6 +69,7 @@ public class ApiExceptionHandler {
     public ProblemDetail handleInvalidProject(InvalidProjectException ex) {
         ProblemDetail problem = problem(HttpStatus.BAD_REQUEST, "Ungültige Projektdaten",
                 "Das Projekt enthält ungültige Angaben.");
+        // Gleiche Struktur wie bei @Valid-Fehlern, damit ein Client alle 400-Fehler einheitlich auswerten kann
         problem.setProperty("errors", Map.of(ex.getField(), ex.getMessage()));
         return problem;
     }
@@ -91,6 +87,11 @@ public class ApiExceptionHandler {
     @ExceptionHandler(EmployeeOverlapException.class)
     public ProblemDetail handleEmployeeOverlap(EmployeeOverlapException ex) {
         return problem(HttpStatus.CONFLICT, "Zeitliche Überschneidung", ex.getMessage());
+    }
+
+    @ExceptionHandler(EmployeeServiceUnavailableException.class)
+    public ProblemDetail handleEmployeeServiceUnavailable(EmployeeServiceUnavailableException ex) {
+        return problem(HttpStatus.SERVICE_UNAVAILABLE, "Employee-Service nicht erreichbar", ex.getMessage());
     }
 
     private ProblemDetail problem(HttpStatus status, String title, String detail) {

@@ -40,6 +40,7 @@ public class AuthentikSecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .cors(Customizer.withDefaults())
+                // CSRF aus: Die API ist zustandslos und nutzt Bearer-Token statt Cookies
                 .csrf(csrf -> csrf.disable())
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> {
@@ -47,13 +48,11 @@ public class AuthentikSecurityConfig {
                         })
                 )
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/hello").authenticated()
-                        .requestMatchers("/hello/**").authenticated()
-
                         .requestMatchers("/projects").authenticated()
                         .requestMatchers("/projects/**").authenticated()
 
                         .requestMatchers("/employees/**").authenticated()
+                        // Alles nicht Eingetragene ist offen (u. a. Swagger). Neue Endpunkte oben ergänzen!
                         .anyRequest().permitAll()
                 );
 
